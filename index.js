@@ -32,12 +32,18 @@ app.get("/", (req, res) => {
 app.use('/api/user', userRouter);
 app.use('/api/otp',otpRouter)
 
-connectDB()
-    .then(() => {
-        app.listen(PORT, () => {
+async function StartServer() {
+    try{
+        await connectDB();
+         app.listen(PORT, () => {
             console.log("Server is running on port", PORT);
         });
-    })
-    .catch((err) => {
+
+    }
+    catch(err){
         console.error("Failed to connect to DB", err);
-    });
+        process.exit(1)
+    };
+}
+
+StartServer();
