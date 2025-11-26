@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import connectDB from './config/connectDB.js';
 import userRouter from './route/user.route.js';
 import otpRouter from './route/sendOtp.Router.js';
+import Adminprofile from './route/Admin.router.js/Admin.profile.js';
 
 const app = express();
 
@@ -30,7 +31,10 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/user', userRouter);
-app.use('/api/otp',otpRouter)
+app.use('/api/otp',otpRouter);
+
+// Admin 
+app.use("/api/admin/profile",Adminprofile);
 
 async function StartServer() {
     try{
