@@ -6,8 +6,8 @@ const subcategoriesSchema = new mongoose.Schema({
         default:""
     },
     image:{
-       type:String,
-       default:""
+      data: Buffer,
+    contentType: String,
     },
     category:[
 {
@@ -19,4 +19,4 @@ const subcategoriesSchema = new mongoose.Schema({
     timestamps:true
 })
 const SubCatogeryModel = mongoose.model("subCatory",subcategoriesSchema)
-export default SubCatogeryModel
+export default SubCatogeryModel;

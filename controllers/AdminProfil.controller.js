@@ -1,65 +1,69 @@
+import AdminUser from "../model/Admin.model.js";
+
+// Create admin
 export const createAdmin = async (req, res) => {
   try {
     const { name, email, mobile } = req.body;
-    const file = req.file;
 
-    const admin = await Admin.create({
+    const admin = await AdminUser.create({
       name,
       email,
       mobile,
-      profilePic: file?.filename || null
+      profilePic: req.file?.filename || null,
     });
 
     return res.json({
       success: true,
       message: "Admin created successfully",
-      data: admin
+      data: admin,
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
 
+// Get admin details
+export const getAdmin = async (req, res) => {
+  try {
+    const admin = await AdminUser.findById(req.params.id);
 
-//get admin details
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
 
-export const getAdmin = async (req,res)=>{
-    try{
-        const admin = await admin.findByiD(req.params.id);
-        return res.json({success:true,data:admin});
-    }
-    catch(err){
-        return res.status(500).json({success:false,message:err.message})
-    }
+    return res.json({ success: true, data: admin });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 
+// Update admin profile
+export const updateAdmin = async (req, res) => {
+  try {
+    const { name, email, mobile } = req.body;
 
-// update admin profile
+    const updatedData = { name, email, mobile };
 
-export const updateAdmin = async (req,res)=>{
-    try{
-        const {name ,email,mobile} = req.body;
-        const file = req.file;
-
-        const updatedData = {name,email,mobile};
-        if(file){
-            updatedData.profilePic = file.filename;
-        }
-
-        const admin = await Admin.findByIdAndUpdate(
-            req.params.id,
-            updatedData,
-            {new:true}
-
-        );
-        return res.json({
-            success:true,
-            message:"Admin updates successfully",
-            data :admin
-        });
-    }
-    catch(err){
-        return res.status(500).json({success:false,message:err.message})
+    if (req.file) {
+      updatedData.profilePic = req.file.filename;
     }
 
+    const admin = await AdminUser.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
+
+    if (!admin) {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
+
+    return res.json({
+      success: true,
+      message: "Admin updated successfully",
+      data: admin,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };

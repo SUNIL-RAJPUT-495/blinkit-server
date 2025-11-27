@@ -8,7 +8,8 @@ import helmet from 'helmet';
 import connectDB from './config/connectDB.js';
 import userRouter from './route/user.route.js';
 import otpRouter from './route/sendOtp.Router.js';
-import Adminprofile from './route/Admin.router.js/Admin.profile.js';
+import adminRouter from './route/Admin.router.js/Admin.profile.js';
+
 
 const app = express();
 
@@ -34,7 +35,15 @@ app.use('/api/user', userRouter);
 app.use('/api/otp',otpRouter);
 
 // Admin 
-app.use("/api/admin/profile",Adminprofile);
+app.use("/api",adminRouter);
+app.use("/uploads",adminRouter)
+
+// SubCategory
+app.use("/api/subcategory", subCategoryRoutes);
+
+// creat Product
+app.use("/product", productRoutes);
+
 
 async function StartServer() {
     try{
