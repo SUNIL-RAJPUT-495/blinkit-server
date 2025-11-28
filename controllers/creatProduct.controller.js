@@ -1,4 +1,4 @@
-import Product from "../models/Product.model.js";
+import ProdeuctModel from "../model/product.model.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const createProduct = async (req, res) => {
       subCategory
     } = req.body;
 
-    const newProduct = new Product({
+    const newProduct = new ProdeuctModel({
       name,
       description,
       price,

@@ -6,10 +6,15 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import connectDB from './config/connectDB.js';
+
 import userRouter from './route/user.route.js';
 import otpRouter from './route/sendOtp.Router.js';
-import adminRouter from './route/Admin.router.js/Admin.profile.js';
 
+// Admin Routers
+import Create_product from './route/adminRouter/creat.product.router.js';
+import categoryRoutes from './route/adminRouter/category.router.js';
+import all_product from './route/adminRouter/getAll.product.Router.js';
+import Sub_Category from './route/adminRouter/subCategory.js';
 
 const app = express();
 
@@ -19,10 +24,10 @@ app.use(cors({
     origin: process.env.FRONTEND_URL
 }));
 
-// Body parsers
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(morgan("dev")); // specify format
+app.use(morgan("dev"));
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 
 const PORT = process.env.PORT || 8080;
@@ -31,32 +36,27 @@ app.get("/", (req, res) => {
     res.json({ message: "Server is running on port " + PORT });
 });
 
+// User Routes
 app.use('/api/user', userRouter);
-app.use('/api/otp',otpRouter);
+app.use('/api/otp', otpRouter);
 
-// Admin 
-app.use("/api",adminRouter);
-app.use("/uploads",adminRouter)
-
-// SubCategory
-app.use("/api/subcategory", subCategoryRoutes);
-
-// creat Product
-app.use("/product", productRoutes);
-
+// Admin routes
+app.use("/api/subcategory", Sub_Category);
+app.use("/api/category", categoryRoutes);
+app.use("/api/product", Create_product);
+app.use("/api/allproducts", all_product);
 
 async function StartServer() {
-    try{
+    try {
         await connectDB();
-         app.listen(PORT, () => {
+        app.listen(PORT, () => {
             console.log("Server is running on port", PORT);
         });
 
-    }
-    catch(err){
+    } catch (err) {
         console.error("Failed to connect to DB", err);
-        process.exit(1)
-    };
+        process.exit(1);
+    }
 }
 
 StartServer();
