@@ -4,8 +4,8 @@ import { Router } from "express";
 
 const adminRouter = Router();
 
-adminRouter.post("/admin", upload.single("profilePic"), createAdmin);
-adminRouter.get("/admin/:id", getAdmin);
-adminRouter.put("/admin/:id", upload.single("profilePic"), updateAdmin);
+adminRouter.post("/", upload.single("profilePic"), createAdmin);
+adminRouter.get("/:id", getAdmin);
+adminRouter.put("/:id", upload.single("profilePic"), updateAdmin);
 
 export default adminRouter;

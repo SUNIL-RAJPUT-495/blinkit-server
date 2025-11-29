@@ -1,5 +1,5 @@
 import express from "express";
-import { upload } from "../middleware/upload.js";
+import { upload } from "../../middleware/upload.js";
 // FIXED: Added createProduct to the import list
 import { getAllProducts, deleteProduct, createProduct } from "../../controllers/all.product.controller.js"; 
 

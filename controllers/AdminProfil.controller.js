@@ -1,6 +1,8 @@
 import AdminUser from "../model/Admin.model.js";
 
 // Create admin
+
+
 export const createAdmin = async (req, res) => {
   try {
     const { name, email, mobile } = req.body;

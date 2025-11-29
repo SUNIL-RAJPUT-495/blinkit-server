@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import connectDB from './config/connectDB.js';
 
-import userRouter from './route/user.route.js';
+import userRouter from './route/clientRouter/user.router.js'
 import otpRouter from './route/sendOtp.Router.js';
 
 // Admin Routers
@@ -15,6 +15,7 @@ import Create_product from './route/adminRouter/creat.product.router.js';
 import categoryRoutes from './route/adminRouter/category.router.js';
 import all_product from './route/adminRouter/getAll.product.Router.js';
 import Sub_Category from './route/adminRouter/subCategory.js';
+import adminRouter from './route/adminRouter/Admin.profile.js';
 
 const app = express();
 
@@ -40,7 +41,11 @@ app.get("/", (req, res) => {
 app.use('/api/user', userRouter);
 app.use('/api/otp', otpRouter);
 
+// Correct uploads static path
+app.use("/uploads", express.static("uploads"));
+
 // Admin routes
+app.use("/api/admin",adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/category", categoryRoutes);
 app.use("/api/product", Create_product);

@@ -1,41 +1,33 @@
-import { Resend } from 'resend';
-import dotenv from 'dotenv';
+import { Resend } from "resend";
+import dotenv from "dotenv";
 dotenv.config();
 
+// Correct check
 if (!process.env.RESEND_API) {
-    console.log("Provide RESEND_API inside the .env file");
+  console.log("❌ RESEND_API is missing inside .env file");
 }
 
-const resend = new Resend(process.env.RESEND_API); // Remove quotes
+const resend = new Resend(process.env.RESEND_API);  // FIXED
 
 const sendEmail = async ({ sendTo, subject, html }) => {
-    try {
-        const { data, error } = await resend.emails.send({
-            from: 'Binkeyit <onboarding@resend.dev>',
-            to: [sendTo],
-            subject: subject,
-            html: html,
-        });
-
-        if (error) {
-            console.error({ error });
-            return null;
-        }
-
-        return data;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-};
-
-// Example usage
-(async function () {
-    const result = await sendEmail({
-        sendTo: 'test@example.com',
-        subject: 'Test Email',
-        html: '<h1>Hello World</h1>',
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Blinkit <onboarding@resend.dev>",
+      to: sendTo,
+      subject,
+      html
     });
 
-    console.log({ result });
-})();
+    if (error) {
+      console.log("Mail Error:", error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.log("Mail Exception:", err);
+    return null;
+  }
+};
+
+export default sendEmail;
