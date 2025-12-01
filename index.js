@@ -20,10 +20,14 @@ import adminRouter from './route/adminRouter/Admin.profile.js';
 const app = express();
 
 // CORS
+app.use(cors());
+
 app.use(cors({
     credentials: true,
     origin: process.env.FRONTEND_URL
 }));
+
+
 
 // Middleware
 app.use(express.json());

@@ -4,7 +4,13 @@ import sendEmail from '../config/sendEmail.js';
 import verifyEmailTemplate from '../utils/verifyEmailTemplates.js';
 import generateRefreshToken from '../utils/generaateRefreshToken.js';
 import generateAccesToken from '../utils/generateAccesToken.js';
+import uploadImageClodinary from '../utils/uploadImageCloudnery.js';
+import generatedOtp from '../utils/generatedOtp.js';
+import forgotPasswardTemplate from '../utils/forgotPasswardTemplates.js';
+import { response } from 'express';
 
+
+// Registration 
 export async function registerUserController(req, res) {
     try {
         const { name, email, password } = req.body;
@@ -65,6 +71,9 @@ export async function registerUserController(req, res) {
     }
 }
 
+
+// veryifyEmail
+
 export async function verifyEmailController(req,res) {
     try{
         const {code} =req.body;
@@ -93,6 +102,7 @@ export async function verifyEmailController(req,res) {
     }
     
 }
+
 
 // login Controller
 
@@ -169,10 +179,32 @@ export async function loginController(req,res) {
     
 }
 
+
+
 // logout controlller
 
-export async function logoutController(req,res) {
-    try{}
+export async function logoutController(req,res) { 
+    try{
+        const userId = req.userId //middelware
+        const cookiesOption ={
+            httpOnly : true,
+            secure : true,
+            sameSite : "None"
+        }
+
+
+        res.clearCookie("accesstoken",cookiesOption)
+        res.clearCookie("refreshToken",cookiesOption)
+
+        const removeRefreshToken = await UserModel.findByIdAndUpdate(userId,{
+            refreshToken: ""
+        })  
+        return res.json({
+            message : "Logout successfully",
+            error : false,
+            success : true,
+         })
+    }
     catch(error){
         return res.status(500).json({
             message : error.message || error,
@@ -181,5 +213,266 @@ export async function logoutController(req,res) {
         })
     }
 
+    
+}
+
+
+
+
+//upload user avatar 
+export async function uploadAvatar(req, res) {
+    try {
+        const userId = req.userId;    // auth middleware
+        const file = req.file;        // multer
+
+        // 1️⃣ Check if multer received the image
+        if (!file) {
+            return res.status(400).json({
+                message: "No image uploaded",
+                error: true,
+                success: false
+            });
+        }
+
+        console.log("FILE RECEIVED:", file);
+
+        // 2️⃣ Upload to Cloudinary using the BUFFER
+        const uploadedImg = await uploadImageClodinary(file);
+
+        // 3️⃣ Update user avatar
+        await UserModel.findByIdAndUpdate(
+            userId,
+            { avatar: uploadedImg.secure_url },   // ✔ correct field!
+            { new: true }
+        );
+
+        return res.json({
+            message: "Profile image uploaded",
+            data: {
+                _id: userId,
+                avatar: uploadedImg.secure_url
+            },
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+
+
+// update user details 
+export async function updateUserDetails(req,res){
+    try{
+        const userId =req.userId //auth middleware
+        const {name ,email ,mobile ,password} = req.body
+        
+         let hashPassword = ""
+
+         if(password){
+            const salt = await bcryptjs.genSalt(10);
+            const hashedPassword = await bcryptjs.hash(password, salt);  
+         }
+
+
+        const updateUser = await UserModel.updateOne({_ID : userId},{
+            ...(name && {name : name}),
+            ...(email && {email : email}),
+            ...(mobile && {mobile : mobile}),
+            ...(password && {password :hashPassword})
+
+        })
+        return res.json({
+            message : "updated user successfully",
+            error : false,
+            success:true,
+            data: updateUser
+        })
+
+
+     
+    }catch(error){
+        return res.status(500).json({
+            message: error.message|| error,
+            error:true,
+            success:false
+            
+        })
+    }
+}
+
+
+
+//Forgot password
+export async function forgotPasswordController(req,res) {
+    try{console.log("BODY RECEIVED ===>", req.body);
+        const {email} = req.body
+          
+
+        const user = await UserModel.findOne({email})
+
+        if(!user){
+            return res.status(400).json({
+                message : "Email not avalable",
+                error : true,
+                success : false
+            })
+        }
+
+        const otp = generatedOtp()
+        const expireTime =  Date.now()+60*60*1000  //1hr
+
+        const update = await UserModel.findByIdAndUpdate(user._id,{
+            forgot_password_otp :otp,
+            forgot_password_expiry:new Date(expireTime).toISOString()
+        })
+
+        await sendEmail({
+            sendTo :email,
+            subject:"Forgot password from Binkeyit",
+            html:forgotPasswardTemplate({
+                name :user.name,
+                otp:otp
+            })
+        })
+
+
+        return res.json({
+            message: "check your email",
+            error:false,
+            success:true
+        })
+
+
+    }catch(error){
+        return res.status(500).json({
+            message: error.message||error,
+            error:true,
+            success:false
+        })
+    }
+    
+}
+
+
+// verify forgot password otp 
+
+export async function verifyForgotPasswordOtp(req, res) {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({
+                message: "Provide required fields: email, otp.",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Email not available",
+                error: true,
+                success: false
+            });
+        }
+
+        const currentTime = new Date();
+
+        if (new Date(user.forgot_password_expiry) < currentTime) {
+            return res.status(400).json({
+                message: "Otp is expired",
+                error: true,
+                success: false
+            });
+        }
+
+        if (otp !== user.forgot_password_otp) {
+            return res.status(400).json({
+                message: "Invalid OTP",
+                error: true,
+                success: false
+            });
+        }
+
+        return res.json({
+            message: "OTP verified successfully",
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
+    }
+}
+
+
+// reset the passward
+
+export async function resetPassword(req,res) {
+    try{
+        const {email,newPassword,conformPassward} =req.body
+        
+console.log("BODY => ", req.body);
+
+        if(!email ||!newPassword||!conformPassward){
+            return res.json({
+                message:"Provide required fields email ,passward,conformpassword",
+                error:true,
+                success:false
+            })
+        }
+        const user = await UserModel.findOne({email})
+
+
+        if(!user){
+            return res.status(400).json({
+                message:"Email is not avalable",
+                error:true,
+                success:false
+            })
+        }
+        if(newPassword !== conformPassward){
+            return res.status(400).json({
+                message:"new password and conform password is not same",
+                error :true,
+                success:false
+            })
+        }
+
+
+        const salt = await bcryptjs.genSalt(10)
+        const hashPassword = await bcryptjs.hash(newPassword,salt)
+        const update = await UserModel.findOneAndUpdate(user._id,{
+            password: hashPassword
+        })
+
+
+        return res.json({
+            message:"Password added succesfully",
+            error:false,
+            success:true
+        })
+
+
+    }catch(error){
+        return res.status(500).json({
+            message:error.message ||error,
+            error:true,
+            success:false
+        })
+
+    }
     
 }
