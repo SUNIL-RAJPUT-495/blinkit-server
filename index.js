@@ -16,6 +16,7 @@ import categoryRoutes from './route/adminRouter/category.router.js';
 import all_product from './route/adminRouter/getAll.product.Router.js';
 import Sub_Category from './route/adminRouter/subCategory.js';
 import adminRouter from './route/adminRouter/Admin.profile.js';
+import uploadRouter from './route/adminRouter/upload.routes.js';
 
 const app = express();
 
@@ -49,9 +50,10 @@ app.use('/api/otp', otpRouter);
 app.use("/uploads", express.static("uploads"));
 
 // Admin routes
+app.use("/api/category", categoryRoutes);
+app.use("/api/file",uploadRouter)
 app.use("/api/admin",adminRouter)
 app.use("/api/subcategory", Sub_Category);
-app.use("/api/category", categoryRoutes);
 app.use("/api/product", Create_product);
 app.use("/api/allproducts", all_product);
 

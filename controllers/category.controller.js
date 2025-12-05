@@ -1,21 +1,43 @@
+import CategoryModel from "../model/category.model.js";
 import Category from "../model/category.model.js";
 
 export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
-
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: "Image required" });
+    if(!name||!image){
+      return res.json({
+        message: "Enter required fields",
+        error:true,
+        success:false
+      })
     }
 
-    const category = await Category.create({
+    const addCategory =new CategoryModel({
       name,
-      image: req.file.filename,
-    });
+      image
+    })
+    const saveCategory = await addCategory.save()
 
-    res.json({ success: true, data: category });
+    if(!saveCategory){
+      return res.status(500).json({
+        message:"Not Created",
+        error:true,
+        success:false
+      })
+    }
+    return res.json({
+      message:"Add Category",
+      data:saveCategory,
+      success:true,
+      error:false
+    })
+
+   
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+       success: false, 
+       message: err.message 
+      });
   }
 };
 
