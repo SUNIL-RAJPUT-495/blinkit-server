@@ -1,10 +1,12 @@
-import express from "express";
-import { createCategory, getAllCategory, deleteCategory } from "../../controllers/category.controller.js";
-import auth from "../../middleware/auth.js"
+import { Router } from 'express'
+import auth from '../../middleware/auth.js'
+import { AddCategoryController, deleteCategoryController, getCategoryController, updateCategoryController } from '../../controllers/category.controller.js'
 
-const categoryRoutes = express.Router();
+const categoryRouter = Router()
 
-categoryRoutes.post("/add-category",auth, createCategory);
-categoryRoutes.delete("/:id", deleteCategory);
+categoryRouter.post("/add-category",auth,AddCategoryController)
+categoryRouter.get('/get',getCategoryController)
+categoryRouter.put('/update',auth,updateCategoryController)
+categoryRouter.delete("/delete",auth,deleteCategoryController)
 
-export default categoryRoutes;
+export default categoryRouter
