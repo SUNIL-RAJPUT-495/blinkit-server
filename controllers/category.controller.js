@@ -45,18 +45,19 @@ export const AddCategoryController = async(request,response)=>{
     }
 }
 
-export const getCategoryController = async(request,response)=>{
+export const getCategoryController = async(req,res)=>{
     try {
         
-        const data = await CategoryModel.find().sort({ createdAt : -1 })
+        const data = await CategoryModel.find()
 
-        return response.json({
+        return res.json({
+            message: "All categories fetched",
             data : data,
             error : false,
             success : true
         })
     } catch (error) {
-        return response.status(500).json({
+        return res.status(500).json({
             message : error.messsage || error,
             error : true,
             success : false
@@ -64,70 +65,71 @@ export const getCategoryController = async(request,response)=>{
     }
 }
 
-export const updateCategoryController = async(request,response)=>{
-    try {
-        const { _id ,name, image } = request.body 
 
-        const update = await CategoryModel.updateOne({
-            _id : _id
-        },{
-           name, 
-           image 
-        })
 
-        return response.json({
-            message : "Updated Category",
-            success : true,
-            error : false,
-            data : update
-        })
-    } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+
+export const updateCategoryController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, image } = req.body;
+
+    if (!name || !image) {
+      return res.status(400).json({ message: "Name and image required", success: false, error: true });
     }
-}
 
-export const deleteCategoryController = async(request,response)=>{
-    try {
-        const { _id } = request.body 
+    const updatedCategory = await CategoryModel.findByIdAndUpdate(
+      id,
+      { name, image },
+      { new: true }
+    );
 
-        const checkSubCategory = await SubCategoryModel.find({
-            category : {
-                "$in" : [ _id ]
-            }
-        }).countDocuments()
-
-        const checkProduct = await ProductModel.find({
-            category : {
-                "$in" : [ _id ]
-            }
-        }).countDocuments()
-
-        if(checkSubCategory >  0 || checkProduct > 0 ){
-            return response.status(400).json({
-                message : "Category is already use can't delete",
-                error : true,
-                success : false
-            })
-        }
-
-        const deleteCategory = await CategoryModel.deleteOne({ _id : _id})
-
-        return response.json({
-            message : "Delete category successfully",
-            data : deleteCategory,
-            error : false,
-            success : true
-        })
-
-    } catch (error) {
-       return response.status(500).json({
-            message : error.message || error,
-            success : false,
-            error : true
-       }) 
+    if (!updatedCategory) {
+      return res.status(404).json({ message: "Category not found", success: false, error: true });
     }
-}
+
+    return res.json({
+      message: "Category updated successfully",
+      success: true,
+      error: false,
+      data: updatedCategory,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message, success: false, error: true });
+  }
+};
+
+
+
+
+export const deleteCategoryController = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check usage
+    const subCategoryCount = await SubCategoryModel.countDocuments({ category: id });
+    const productCount = await ProductModel.countDocuments({ category: id });
+
+    if (subCategoryCount > 0 || productCount > 0) {
+      return res.status(400).json({
+        message: "Category is already used, can't delete",
+        success: false,
+        error: true,
+      });
+    }
+
+    const deletedCategory = await CategoryModel.findByIdAndDelete(id);
+
+    if (!deletedCategory) {
+      return res.status(404).json({ message: "Category not found", success: false, error: true });
+    }
+
+    return res.json({
+      message: "Category deleted successfully",
+      success: true,
+      error: false,
+      data: deletedCategory,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message, success: false, error: true });
+  }
+};

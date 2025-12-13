@@ -1,94 +1,89 @@
 import SubCategory from "../model/subcatogory.model.js";
 
-// Add sub category
+/* ================= ADD SUB CATEGORY ================= */
 export const addSubCategory = async (req, res) => {
   try {
-    const { name, category } = req.body;
+    const { name, categoryId, image } = req.body;
 
-    if (!name || !category) {
-      return res.status(400).json({ error: "Name and Category are required" });
+    if (!name || !categoryId || !image) {
+      return res.status(400).json({
+        message: "All fields are required",
+        error: true,
+        success: false,
+      });
     }
 
-    const newSubCategory = new SubCategory({
+    const newSubCategory = await SubCategory.create({
       name,
-      category,
-      image: req.file
-        ? {
-            data: req.file.buffer,
-            contentType: req.file.mimetype,
-          }
-        : null,
+      categoryId,
+      image,
     });
 
-    await newSubCategory.save();
+    const populated = await newSubCategory.populate("categoryId", "name image");
 
-    res.json({
+    return res.json({
       success: true,
       message: "Sub Category Added Successfully",
-      data: newSubCategory,
+      data: populated,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Server Error", details: error });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
-// Get all sub categories
+/* ================= GET ALL SUB CATEGORY ================= */
 export const getAllSubCategory = async (req, res) => {
   try {
-    const data = await SubCategory.find().select("-image.data");
+    const data = await SubCategory.find().populate("categoryId", "name image");
     res.json({ success: true, data });
   } catch (error) {
-    res.status(500).json({ success: false, error });
+    console.error("Get SubCategory Error:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-// Get Image by ID
-export const getSubCategoryImage = async (req, res) => {
-  try {
-    const sub = await SubCategory.findById(req.params.id);
-
-    if (!sub || !sub.image || !sub.image.data) {
-      return res.status(404).send("Image not found");
-    }
-
-    res.set("Content-Type", sub.image.contentType);
-    res.send(sub.image.data);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-// Delete sub category
+/* ================= DELETE SUB CATEGORY ================= */
 export const deleteSubCategory = async (req, res) => {
   try {
-    await SubCategory.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Deleted Successfully" });
+    const { id } = req.params;
+    await SubCategory.findByIdAndDelete(id);
+
+    return res.json({
+      success: true,
+      message: "Sub Category Deleted Successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, error });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
-// Update sub category
+/* ================= UPDATE SUB CATEGORY ================= */
 export const updateSubCategory = async (req, res) => {
   try {
-    const { name, category } = req.body;
-    const updateData = { name, category };
-
-    if (req.file) {
-      updateData.image = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-      };
-    }
+    const { id } = req.params;
+    const { name, categoryId, image } = req.body;
 
     const updated = await SubCategory.findByIdAndUpdate(
-      req.params.id,
-      updateData,
+      id,
+      { name, categoryId, image },
       { new: true }
-    );
+    ).populate("categoryId", "name image");
 
-    res.json({ success: true, updated });
+    return res.json({
+      success: true,
+      message: "Sub Category Updated Successfully",
+      data: updated,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, error });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };

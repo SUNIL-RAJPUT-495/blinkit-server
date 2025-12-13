@@ -11,12 +11,13 @@ import userRouter from './route/adminRouter/user.router.js';
 import otpRouter from './route/sendOtp.Router.js';
 
 // Admin Routers
+import uploadRouter from './route/adminRouter/upload.routes.js';
 import Create_product from './route/adminRouter/creat.product.router.js';
 import categoryRoutes from './route/adminRouter/category.router.js';
 import all_product from './route/adminRouter/getAll.product.Router.js';
 import Sub_Category from './route/adminRouter/subCategory.js';
 import adminRouter from './route/adminRouter/Admin.profile.js';
-import uploadRouter from './route/adminRouter/upload.routes.js';
+
 
 const app = express();
 

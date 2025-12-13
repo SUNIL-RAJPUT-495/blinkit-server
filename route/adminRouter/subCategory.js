@@ -1,23 +1,25 @@
 import express from "express";
-import multer from "multer";
 import {
   addSubCategory,
   getAllSubCategory,
-  getSubCategoryImage,
   deleteSubCategory,
-  updateSubCategory
+  updateSubCategory,
 } from "../../controllers/subCategory.controller.js";
 
-const Sub_Category = express.Router();
+const SubCategoryRouter = express.Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+/* ================= SUB CATEGORY ROUTES ================= */
 
-// Routes
-Sub_Category.post("/add", upload.single("image"), addSubCategory);
-Sub_Category.get("/", getAllSubCategory);
-Sub_Category.get("/image/:id", getSubCategoryImage);
-Sub_Category.delete("/:id", deleteSubCategory);
-Sub_Category.put("/:id", upload.single("image"), updateSubCategory);
+// Add Sub Category
+SubCategoryRouter.post("/add-subcategory", addSubCategory);
 
-export default Sub_Category;
+// Get All Sub Categories
+SubCategoryRouter.get("/get-subcategory", getAllSubCategory);
+
+// Update Sub Category
+SubCategoryRouter.put("/update-subcategory/:id", updateSubCategory);
+
+// Delete Sub Category
+SubCategoryRouter.delete("/delete-subcategory/:id", deleteSubCategory);
+
+export default SubCategoryRouter;
