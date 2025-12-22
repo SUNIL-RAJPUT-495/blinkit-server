@@ -1,7 +1,12 @@
 import express from "express";
-import {createProduct} from "../../controllers/creatProduct.controller.js"
+import {createProduct,editProduct,deleteProduct,getAllProducts} from "../../controllers/creatProduct.controller.js"
 
-const Create_product = express.Router();
+const product = express.Router();
+
+product.post("/add-product",createProduct)
+product.put("/edit-Product/:id",editProduct)
+product.delete("/delet-product/:id",deleteProduct)
+product.get("/getAllProducts",getAllProducts)
 
 
-export default Create_product;
+export default product;

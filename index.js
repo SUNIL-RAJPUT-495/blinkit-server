@@ -12,7 +12,7 @@ import otpRouter from './route/sendOtp.Router.js';
 
 // Admin Routers
 import uploadRouter from './route/adminRouter/upload.routes.js';
-import Create_product from './route/adminRouter/creat.product.router.js';
+import product from './route/adminRouter/creat.product.router.js';
 import categoryRoutes from './route/adminRouter/category.router.js';
 import all_product from './route/adminRouter/getAll.product.Router.js';
 import Sub_Category from './route/adminRouter/subCategory.js';
@@ -52,8 +52,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/file", uploadRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
-app.use("/api/product", Create_product);
-app.use("/api/allproducts", all_product);
+app.use("/api/product", product);
 
 async function StartServer() {
     try {

@@ -1,35 +1,58 @@
 import uploadImageCloudinary from "../utils/uploadImageCloudnery.js";
 
-const uploadImageController = async (req, res) => {
+// ================= SINGLE IMAGE =================
+export const uploadSingleImage = async (req, res) => {
   try {
-    const file = req.file;
-    const folder = req.body.folder || "blinkit/others";
-    
-    if (!file) {
+    if (!req.file) {
       return res.status(400).json({
-        message: "No file provided",
         success: false,
-        error: true,
+        message: "No image provided",
       });
     }
-    const uploadImage = await uploadImageCloudinary(file, folder);
 
-    return res.json({
-      message: "Upload done",
+    const folder = req.body.folder || "blinkit/profiles";
+
+    const uploaded = await uploadImageCloudinary(req.file, folder);
+
+    res.status(201).json({
       success: true,
-      error: false,
-      data: {
-        url: uploadImage.secure_url,
-        folder: folder,
-      },
+      data: { url: uploaded.secure_url, folder },
     });
   } catch (error) {
-    return res.status(500).json({
-      message: error.message || error,
-      error: true,
+    res.status(500).json({
       success: false,
+      message: error.message,
     });
   }
 };
 
-export default uploadImageController;
+// ================= MULTIPLE PRODUCT IMAGES =================
+export const uploadProductImages = async (req, res) => {
+  try {
+    const files = req.files || [];
+    if (files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No images provided",
+      });
+    }
+
+    const folder = req.body.folder || "blinkit/products";
+
+    const uploadedImages = await Promise.all(
+      files.map(file => uploadImageCloudinary(file, folder))
+    );
+
+    const urls = uploadedImages.map(img => img.secure_url);
+
+    res.status(201).json({
+      success: true,
+      data: urls, // array of URLs
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
