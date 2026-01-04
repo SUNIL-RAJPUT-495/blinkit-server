@@ -20,13 +20,24 @@ import adminRouter from '../route/adminRouter/Admin.router.js';
 
 const app = express();
 
+const allowedOrigins = [
+    "https://blinkit-client-ten.vercel.app",
+    "https://blinkit-client-ten.vercel.app/"
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL,  
+    origin: function (origin, callback) {
+        // Agar origin list mein hai ya request local/server-side hai
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
