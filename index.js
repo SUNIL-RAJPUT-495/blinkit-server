@@ -32,6 +32,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
+connectDB();
 
 const PORT = process.env.PORT || 8080;
 
@@ -53,15 +54,5 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 
-async function StartServer() {
-    try {
-        await connectDB();
-       
-    } catch (err) {
-        console.error("Failed to connect to DB", err);
-        process.exit(1);
-    }
-}
 
-StartServer();
 export default app;
