@@ -38,6 +38,7 @@ const PORT = process.env.PORT || 8080;
 app.get("/", (req, res) => {
     res.json({ message: "Server is running on port " + PORT });
 });
+connectDB();
 
 // User Routes
 app.use('/api/user', userRouter);
@@ -53,17 +54,3 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 
-async function StartServer() {
-    try {
-        await connectDB();
-        app.listen(PORT, () => {
-            console.log("Server is running on port", PORT);
-        });
-
-    } catch (err) {
-        console.error("Failed to connect to DB", err);
-        process.exit(1);
-    }
-}
-
-StartServer();
