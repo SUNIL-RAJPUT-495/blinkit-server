@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import serverless from 'serverless-http';
 import dotenv from 'dotenv';
 dotenv.config();
 import cookieParser from 'cookie-parser';
@@ -55,4 +56,4 @@ app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 
 
-export default app;
+export default serverless(app);
