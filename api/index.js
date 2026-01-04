@@ -5,17 +5,17 @@ dotenv.config();
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import connectDB from './config/connectDB.js';
+import connectDB from '../config/connectDB.js';
 
-import userRouter from './route/adminRouter/user.router.js';
-import otpRouter from './route/sendOtp.Router.js';
+import userRouter from '../route/adminRouter/user.router.js';
+import otpRouter from '../route/sendOtp.Router.js';
 
 // Admin Routers
-import uploadRouter from './route/adminRouter/upload.routes.js';
-import product from './route/adminRouter/creat.product.router.js';
-import categoryRoutes from './route/adminRouter/category.router.js';
-import Sub_Category from './route/adminRouter/subCategory.js';
-import adminRouter from './route/adminRouter/Admin.profile.js';
+import uploadRouter from '../route/adminRouter/upload.routes.js';
+import product from '../route/adminRouter/creat.product.router.js';
+import categoryRoutes from '../route/adminRouter/category.router.js';
+import Sub_Category from '../route/adminRouter/subCategory.js';
+import adminRouter from '../route/adminRouter/Admin.profile.js';
 
 
 const app = express();
