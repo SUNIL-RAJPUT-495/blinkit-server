@@ -15,7 +15,7 @@ import uploadRouter from '../route/adminRouter/upload.routes.js';
 import product from '../route/adminRouter/creat.product.router.js';
 import categoryRoutes from '../route/adminRouter/category.router.js';
 import Sub_Category from '../route/adminRouter/subCategory.js';
-import adminRouter from '../route/adminRouter/Admin.profile.js';
+import adminRouter from '../route/adminRouter/Admin.router.js';
 
 
 const app = express();
