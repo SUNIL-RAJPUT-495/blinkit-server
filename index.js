@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import serverless from 'serverless-http';
 import dotenv from 'dotenv';
 dotenv.config();
 import cookieParser from 'cookie-parser';
@@ -33,7 +32,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
-connectDB();
 
 const PORT = process.env.PORT || 8080;
 
@@ -55,5 +53,17 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 
+async function StartServer() {
+    try {
+        await connectDB();
+        app.listen(PORT, () => {
+            console.log("Server is running on port", PORT);
+        });
 
-export default serverless(app);
+    } catch (err) {
+        console.error("Failed to connect to DB", err);
+        process.exit(1);
+    }
+}
+
+StartServer();
