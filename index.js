@@ -14,7 +14,6 @@ import otpRouter from './route/sendOtp.Router.js';
 import uploadRouter from './route/adminRouter/upload.routes.js';
 import product from './route/adminRouter/creat.product.router.js';
 import categoryRoutes from './route/adminRouter/category.router.js';
-import all_product from './route/adminRouter/getAll.product.Router.js';
 import Sub_Category from './route/adminRouter/subCategory.js';
 import adminRouter from './route/adminRouter/Admin.profile.js';
 
@@ -22,7 +21,7 @@ import adminRouter from './route/adminRouter/Admin.profile.js';
 const app = express();
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL,   // http://localhost:5173
+    origin: process.env.FRONTEND_URL,  
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -57,10 +56,7 @@ app.use("/api/product", product);
 async function StartServer() {
     try {
         await connectDB();
-        app.listen(PORT, () => {
-            console.log("Server is running on port", PORT);
-        });
-
+       
     } catch (err) {
         console.error("Failed to connect to DB", err);
         process.exit(1);
@@ -68,3 +64,4 @@ async function StartServer() {
 }
 
 StartServer();
+export default app;
