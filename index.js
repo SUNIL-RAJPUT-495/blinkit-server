@@ -54,3 +54,4 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 
+export default app;
