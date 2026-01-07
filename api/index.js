@@ -22,7 +22,8 @@ const app = express();
 
 const allowedOrigins = [
     "https://blinkit-client-ten.vercel.app",
-    "https://blinkit-client-ten.vercel.app/"
+    "https://blinkit-client-ten.vercel.app/",
+    "http://localhost:5173"
 ];
 
 app.use(cors({
