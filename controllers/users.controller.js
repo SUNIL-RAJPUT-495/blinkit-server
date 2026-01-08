@@ -55,7 +55,7 @@ export async function registerUserController(req, res) {
       subject: "Verify email from Blinkit",
       html: verifyEmailTemplate({
         name,
-        code: otp
+        code: verificationEmailCode
       })
     });
 
