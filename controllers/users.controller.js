@@ -36,17 +36,17 @@ export async function registerUserController(req, res) {
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
 
+    const verificationEmailCode = generatedOtp()
 
     const newUser = new UserModel({
       name,
       email,
       password: hashedPassword,
-      verify_email: false
+      verify_email: verificationEmailCode
     });
 
     const save = await newUser.save();
 
-    const verificationEmailCode = generatedOtp
     confirm.log(verificationEmailCode)
 
     await sendEmail({
