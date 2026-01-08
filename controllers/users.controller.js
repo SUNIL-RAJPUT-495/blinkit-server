@@ -68,7 +68,8 @@ export async function verifyEmailController(req, res) {
             return res.status(400).json({ message: "Email already verified", error: true, success: false });
         }
 
-        if (user.verify_email_otp.toString() !== code.toString()) {
+        // ✅ Safe OTP check
+        if (!user.verify_email_otp || user.verify_email_otp.toString() !== code.toString()) {
             return res.status(400).json({ message: "Invalid OTP", error: true, success: false });
         }
 
@@ -87,6 +88,7 @@ export async function verifyEmailController(req, res) {
         return res.status(500).json({ message: error.message || error, error: true, success: false });
     }
 }
+
 
 
 // login Controller
