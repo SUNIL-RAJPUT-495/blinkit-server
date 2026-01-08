@@ -10,8 +10,11 @@ import forgotPasswardTemplate from '../utils/forgotPasswardTemplates.js';
 import { response } from 'express';
 
 
+const tempUsers = new Map();
+
 // Registration 
 export async function registerUserController(req, res) {
+    
   try {
     const { name, email, password } = req.body;
 
@@ -38,15 +41,7 @@ export async function registerUserController(req, res) {
 
     const verificationEmailCode = generatedOtp()
 
-    const newUser = new UserModel({
-      name,
-      email,
-      password: hashedPassword,
-      verify_email: false,
-      otp:verificationEmailCode
-    });
-
-    const save = await newUser.save();
+    tempUsers.set(email, { name, hashedPassword, otp });
     
 
 
@@ -89,20 +84,24 @@ export async function verifyEmailController(req, res) {
         success: false
       });
     }
-
-    const user = await UserModel.findOneAndUpdate(
-      { otp: code },
-      { verify_email: true, otp: null }, 
-      { new: true }
-    );
-
-    if (!user) {
+    const tempUser = tempUsers.get(email);
+    if (!tempUser || tempUser.otp !== code) {
       return res.status(400).json({
-        message: "Invalid or expired code",
+        message: "Invalid or expired OTP",
         error: true,
         success: false
       });
     }
+      const newUser = new UserModel({
+      name: tempUser.name,
+      email,
+      password: tempUser.hashedPassword,
+      verify_email: true
+    });
+
+    await newUser.save();
+
+    
 
     return res.json({
       message: "Email verified successfully",
