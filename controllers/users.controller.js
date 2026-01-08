@@ -47,7 +47,6 @@ export async function registerUserController(req, res) {
 
     const save = await newUser.save();
 
-    confirm.log(verificationEmailCode)
 
     await sendEmail({
       sendTo: email,
