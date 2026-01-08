@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    otp:{
+        type:Number,
+        default: ""
+
+    },
     status: {
         type: String,
         enum: ["Active", "Inactive", "Suspended"], 

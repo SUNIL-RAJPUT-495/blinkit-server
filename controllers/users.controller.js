@@ -42,10 +42,12 @@ export async function registerUserController(req, res) {
       name,
       email,
       password: hashedPassword,
-      verify_email: verificationEmailCode
+      verify_email: false,
+      otp:verificationEmailCode
     });
 
     const save = await newUser.save();
+    
 
 
     await sendEmail({
@@ -76,34 +78,47 @@ export async function registerUserController(req, res) {
 
 // veryifyEmail
 
-export async function verifyEmailController(req,res) {
-    try{
-        const {code} =req.body;
-        const user = await UserModel.findOne({_id : code})
+export async function verifyEmailController(req, res) {
+  try {
+    const { code } = req.body;
 
-        if(!user){
-             return res.status(400).json({
-                message : "Invalid code",
-                error : true,
-                success :false
-        })
-        }
-        const updateUser = await UserModel.updateOne({_id : code},
-            {verify_email: true})
-            return res.json({
-                message : "Verify email done",
-                success : true,
-                error:false
-            })
+    if (!code) {
+      return res.status(400).json({
+        message: "Verification code is required",
+        error: true,
+        success: false
+      });
     }
-    catch(error){
-        return response.status(500).json({
-            message : error.message || error,
-            error : true
-        })
+
+    const user = await UserModel.findOneAndUpdate(
+      { otp: code },
+      { verify_email: true, otp: null }, 
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid or expired code",
+        error: true,
+        success: false
+      });
     }
-    
+
+    return res.json({
+      message: "Email verified successfully",
+      error: false,
+      success: true
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false
+    });
+  }
 }
+
 
 
 // login Controller
