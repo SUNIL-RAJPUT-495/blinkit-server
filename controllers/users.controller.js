@@ -55,7 +55,7 @@ export async function registerUserController(req, res) {
       subject: "Verify email from Blinkit",
       html: verifyEmailTemplate({
         name,
-        code: verificationEmailCode
+        code: otp
       })
     });
 
@@ -284,45 +284,35 @@ export async function uploadAvatar(req, res) {
 
 
 // update user details 
-export async function updateUserDetails(req,res){
-    try{
-        const userId =req.userId //auth middleware
-        const {name ,email ,mobile ,password} = req.body
+export async function updateUserDetails(req, res) {
+    try {
+        const userId = req.userId;
+        const { name, email, mobile, password } = req.body;
         
-         let hashPassword = ""
+        let updateData = {
+            ...(name && { name }),
+            ...(email && { email }),
+            ...(mobile && { mobile })
+        };
 
-         if(password){
+        if (password) {
             const salt = await bcryptjs.genSalt(10);
-            const hashedPassword = await bcryptjs.hash(password, salt);  
-         }
+            updateData.password = await bcryptjs.hash(password, salt);
+        }
 
+        // Fix: Changed _ID to _id
+        const updateUser = await UserModel.findByIdAndUpdate(userId, updateData, { new: true });
 
-        const updateUser = await UserModel.updateOne({_ID : userId},{
-            ...(name && {name : name}),
-            ...(email && {email : email}),
-            ...(mobile && {mobile : mobile}),
-            ...(password && {password :hashPassword})
-
-        })
         return res.json({
-            message : "updated user successfully",
-            error : false,
-            success:true,
+            message: "User updated successfully",
+            error: false,
+            success: true,
             data: updateUser
-        })
-
-
-     
-    }catch(error){
-        return res.status(500).json({
-            message: error.message|| error,
-            error:true,
-            success:false
-            
-        })
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message, error: true });
     }
 }
-
 
 
 //Forgot password
