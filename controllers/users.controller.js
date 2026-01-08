@@ -14,77 +14,73 @@ const tempUsers = new Map();
 
 // Registration 
 export async function registerUserController(req, res) {
-    
-  try {
-    const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        message: "Provide name, email, password",
-        error: true,
-        success: false
-      });
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                message: "Provide name, email, password",
+                error: true,
+                success: false
+            });
+        }
+
+        const user = await UserModel.findOne({ email });
+
+        if (user) {
+            return res.status(400).json({
+                message: "Email already registered",
+                error: true,
+                success: false
+            });
+        }
+
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
+
+        const otp = generatedOtp();
+        tempUsers.set(email, { name, hashedPassword, otp });
+
+        await sendEmail({
+            sendTo: email,
+            subject: "Verify email from Blinkit",
+            html: verifyEmailTemplate({ name, code: otp })
+        });
+
+
+        return res.json({
+            message: "User registered successfully. Please verify your email.",
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
-
-    const user = await UserModel.findOne({ email });
-
-    if (user) {
-      return res.status(400).json({
-        message: "Email already registered",
-        error: true,
-        success: false
-      });
-    }
-
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
-
-    const verificationEmailCode = generatedOtp()
-
-    tempUsers.set(email, { name, hashedPassword, otp });
-    
-
-
-    await sendEmail({
-      sendTo: email,
-      subject: "Verify email from Blinkit",
-      html: verifyEmailTemplate({
-        name,
-        code: verificationEmailCode
-      })
-    });
-
-    return res.json({
-      message: "User registered successfully. Please verify your email.",
-      error: false,
-      success: true
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message || error,
-      error: true,
-      success: false
-    });
-  }
 }
 
 
 
 // veryifyEmail
-
 export async function verifyEmailController(req, res) {
   try {
-    const { code } = req.body;
+    const { email, code } = req.body;  
 
-    if (!code) {
+    if (!email || !code) {
       return res.status(400).json({
-        message: "Verification code is required",
+        message: "Email and OTP are required",
         error: true,
         success: false
       });
     }
+
     const tempUser = tempUsers.get(email);
+
     if (!tempUser || tempUser.otp !== code) {
       return res.status(400).json({
         message: "Invalid or expired OTP",
@@ -92,7 +88,8 @@ export async function verifyEmailController(req, res) {
         success: false
       });
     }
-      const newUser = new UserModel({
+
+    const newUser = new UserModel({
       name: tempUser.name,
       email,
       password: tempUser.hashedPassword,
@@ -100,11 +97,10 @@ export async function verifyEmailController(req, res) {
     });
 
     await newUser.save();
-
-    
+    tempUsers.delete(email);
 
     return res.json({
-      message: "Email verified successfully",
+      message: "Email verified successfully and user registered",
       error: false,
       success: true
     });
@@ -122,40 +118,40 @@ export async function verifyEmailController(req, res) {
 
 // login Controller
 
-export async function loginController(req,res) {
-    try{
-        const { email, password} = req.body;
+export async function loginController(req, res) {
+    try {
+        const { email, password } = req.body;
 
 
-        if(!email || !password){
+        if (!email || !password) {
             return res.status(400).json({
-                message : "Provide email ,password",
-                error : true,
-                success : false
+                message: "Provide email ,password",
+                error: true,
+                success: false
             })
         }
-        
-        const user = await UserModel.findOne({email}).select("+password")
-        if(!user){
+
+        const user = await UserModel.findOne({ email }).select("+password")
+        if (!user) {
             return res.status(400).json({
-                message : "User not register",
-                error : true,
+                message: "User not register",
+                error: true,
                 success: false
             });
         }
-        if(user.status !== "Active"){
+        if (user.status !== "Active") {
             return res.status(400).json({
-                message : " Contact to Admin",
-                error : true,
-                success : false
+                message: " Contact to Admin",
+                error: true,
+                success: false
             })
         }
 
-        const checkPassword = await bcryptjs.compare(password,user.password)
-        if(!checkPassword){
+        const checkPassword = await bcryptjs.compare(password, user.password)
+        if (!checkPassword) {
             return res.status(401).json({
-                message : "Check your password",
-                error:true,
+                message: "Check your password",
+                error: true,
                 success: false
             })
         }
@@ -163,21 +159,21 @@ export async function loginController(req,res) {
         const accesstoken = await generateAccesToken(user._id)
         const refreshToken = await generateRefreshToken(user._id)
 
-        const cookiesOption ={
-            httpOnly : true,
-            secure : true,
-            sameSite : "None"
+        const cookiesOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None"
         }
 
-        res.cookie("accessToken",accesstoken,cookiesOption)
-        res.cookie("refreshToken",refreshToken,cookiesOption)
+        res.cookie("accessToken", accesstoken, cookiesOption)
+        res.cookie("refreshToken", refreshToken, cookiesOption)
 
 
         return res.json({
-            message : "Login successfully",
-            error : false,
-            success : true,
-            data : {
+            message: "Login successfully",
+            error: false,
+            success: true,
+            data: {
                 accesstoken,
                 refreshToken
             }
@@ -185,51 +181,51 @@ export async function loginController(req,res) {
         )
 
     }
-    catch(error){
+    catch (error) {
         return res.status(500).json({
             message: error.message || error,
             error: true,
-            success :false
+            success: false
         })
     }
-    
+
 }
 
 
 
 // logout controlller
 
-export async function logoutController(req,res) { 
-    try{
+export async function logoutController(req, res) {
+    try {
         const userId = req.userId //middelware
-        const cookiesOption ={
-            httpOnly : true,
-            secure : true,
-            sameSite : "None"
+        const cookiesOption = {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None"
         }
 
 
-        res.clearCookie("accesstoken",cookiesOption)
-        res.clearCookie("refreshToken",cookiesOption)
+        res.clearCookie("accesstoken", cookiesOption)
+        res.clearCookie("refreshToken", cookiesOption)
 
-        const removeRefreshToken = await UserModel.findByIdAndUpdate(userId,{
+        const removeRefreshToken = await UserModel.findByIdAndUpdate(userId, {
             refreshToken: ""
-        })  
+        })
         return res.json({
-            message : "Logout successfully",
-            error : false,
-            success : true,
-         })
+            message: "Logout successfully",
+            error: false,
+            success: true,
+        })
     }
-    catch(error){
+    catch (error) {
         return res.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
 
-    
+
 }
 
 
@@ -287,7 +283,7 @@ export async function updateUserDetails(req, res) {
     try {
         const userId = req.userId;
         const { name, email, mobile, password } = req.body;
-        
+
         let updateData = {
             ...(name && { name }),
             ...(email && { email }),
@@ -315,54 +311,55 @@ export async function updateUserDetails(req, res) {
 
 
 //Forgot password
-export async function forgotPasswordController(req,res) {
-    try{console.log("BODY RECEIVED ===>", req.body);
-        const {email} = req.body
-          
+export async function forgotPasswordController(req, res) {
+    try {
+        console.log("BODY RECEIVED ===>", req.body);
+        const { email } = req.body
 
-        const user = await UserModel.findOne({email})
 
-        if(!user){
+        const user = await UserModel.findOne({ email })
+
+        if (!user) {
             return res.status(400).json({
-                message : "Email not avalable",
-                error : true,
-                success : false
+                message: "Email not avalable",
+                error: true,
+                success: false
             })
         }
 
         const otp = generatedOtp()
-        const expireTime =  Date.now()+60*60*1000  //1hr
+        const expireTime = Date.now() + 60 * 60 * 1000  //1hr
 
-        const update = await UserModel.findByIdAndUpdate(user._id,{
-            forgot_password_otp :otp,
-            forgot_password_expiry:new Date(expireTime).toISOString()
+        const update = await UserModel.findByIdAndUpdate(user._id, {
+            forgot_password_otp: otp,
+            forgot_password_expiry: new Date(expireTime).toISOString()
         })
 
         await sendEmail({
-            sendTo :email,
-            subject:"Forgot password from Binkeyit",
-            html:forgotPasswardTemplate({
-                name :user.name,
-                otp:otp
+            sendTo: email,
+            subject: "Forgot password from Binkeyit",
+            html: forgotPasswardTemplate({
+                name: user.name,
+                otp: otp
             })
         })
 
 
         return res.json({
             message: "check your email",
-            error:false,
-            success:true
+            error: false,
+            success: true
         })
 
 
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
-            message: error.message||error,
-            error:true,
-            success:false
+            message: error.message || error,
+            error: true,
+            success: false
         })
     }
-    
+
 }
 
 
@@ -426,59 +423,59 @@ export async function verifyForgotPasswordOtp(req, res) {
 
 // reset the passward
 
-export async function resetPassword(req,res) {
-    try{
-        const {email,newPassword,conformPassward} =req.body
-        
-console.log("BODY => ", req.body);
+export async function resetPassword(req, res) {
+    try {
+        const { email, newPassword, conformPassward } = req.body
 
-        if(!email ||!newPassword||!conformPassward){
+        console.log("BODY => ", req.body);
+
+        if (!email || !newPassword || !conformPassward) {
             return res.json({
-                message:"Provide required fields email ,passward,conformpassword",
-                error:true,
-                success:false
+                message: "Provide required fields email ,passward,conformpassword",
+                error: true,
+                success: false
             })
         }
-        const user = await UserModel.findOne({email})
+        const user = await UserModel.findOne({ email })
 
 
-        if(!user){
+        if (!user) {
             return res.status(400).json({
-                message:"Email is not avalable",
-                error:true,
-                success:false
+                message: "Email is not avalable",
+                error: true,
+                success: false
             })
         }
-        if(newPassword !== conformPassward){
+        if (newPassword !== conformPassward) {
             return res.status(400).json({
-                message:"new password and conform password is not same",
-                error :true,
-                success:false
+                message: "new password and conform password is not same",
+                error: true,
+                success: false
             })
         }
 
 
         const salt = await bcryptjs.genSalt(10)
-        const hashPassword = await bcryptjs.hash(newPassword,salt)
-        const update = await UserModel.findOneAndUpdate(user._id,{
+        const hashPassword = await bcryptjs.hash(newPassword, salt)
+        const update = await UserModel.findOneAndUpdate(user._id, {
             password: hashPassword
         })
 
 
         return res.json({
-            message:"Password added succesfully",
-            error:false,
-            success:true
+            message: "Password added succesfully",
+            error: false,
+            success: true
         })
 
 
-    }catch(error){
+    } catch (error) {
         return res.status(500).json({
-            message:error.message ||error,
-            error:true,
-            success:false
+            message: error.message || error,
+            error: true,
+            success: false
         })
 
     }
-    
+
 }
