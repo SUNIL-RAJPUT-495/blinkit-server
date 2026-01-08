@@ -36,7 +36,7 @@ export async function registerUserController(req, res) {
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
 
-    // 🔒 IMPORTANT: force verify_email = false
+
     const newUser = new UserModel({
       name,
       email,
@@ -46,14 +46,15 @@ export async function registerUserController(req, res) {
 
     const save = await newUser.save();
 
-    const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${save._id}`;
+    const verificationEmailCode = generatedOtp
+    confirm.log(verificationEmailCode)
 
     await sendEmail({
       sendTo: email,
       subject: "Verify email from Blinkit",
       html: verifyEmailTemplate({
         name,
-        url: VerifyEmailUrl
+        code: verificationEmailCode
       })
     });
 
