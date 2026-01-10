@@ -38,7 +38,7 @@ export async function registerUserController(req, res) {
 
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
-        const newUser = new  UserModel({name,email,hashedPassword,status:"Inactive"})
+        const newUser = new  UserModel({name,email,password:hashedPassword,status:"Inactive"})
         const saveNewUser = await newUser.save()
 
         if(!saveNewUser){
