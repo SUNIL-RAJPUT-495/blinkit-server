@@ -89,8 +89,8 @@ export async function verifyEmailController(req, res) {
     try {
         
         const {email, code } = req.body;
-        const user = await UserModel.findOne(email)
-        
+        const user = await UserModel.findOne({email})
+
            if (!user) {
             return res.status(404).json({
                 message: "User not found",
@@ -108,15 +108,10 @@ export async function verifyEmailController(req, res) {
         }
         user.status="Active"
         user.verify_email=true,
-        user.otp=undefined
+        user.otp=""
 
         await user.save()
 
-
-       
-
-        
-       
 
         return res.json({
             message: "Email verified successfully",
