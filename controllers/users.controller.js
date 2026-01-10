@@ -84,9 +84,9 @@ export async function registerUserController(req, res) {
 
 export async function verifyEmailController(req, res) {
     try {
-        const userId = req.userId
+        
         const { code } = req.body;
-        const user = await UserModel.findById(userId)
+        const user = await UserModel.findOne({_id:otp})
            if (!user) {
             return res.status(404).json({
                 message: "User not found",
