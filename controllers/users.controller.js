@@ -64,9 +64,12 @@ export async function registerUserController(req, res) {
 
 
         return res.json({
-            message: "User registered successfully. Please verify your email.",
+            message: "Please verify your email.",
             error: false,
-            success: true
+            success: true,
+            data:{
+                userId:saveNewUser.email
+            }
         });
 
     } catch (error) {
@@ -85,8 +88,9 @@ export async function registerUserController(req, res) {
 export async function verifyEmailController(req, res) {
     try {
         
-        const { code } = req.body;
-        const user = await UserModel.findOne({_id:code})
+        const {email, code } = req.body;
+        const user = await UserModel.findOne(email)
+        
            if (!user) {
             return res.status(404).json({
                 message: "User not found",
