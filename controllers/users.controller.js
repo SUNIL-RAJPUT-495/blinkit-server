@@ -52,6 +52,9 @@ export async function registerUserController(req, res) {
 
 
         const otp = generatedOtp();
+        newUser.otp = otp;
+        await newUser.save()
+    
 
         await sendEmail({
             sendTo: email,
