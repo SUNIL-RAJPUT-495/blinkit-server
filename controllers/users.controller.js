@@ -81,24 +81,35 @@ export async function registerUserController(req, res) {
 
 export async function verifyEmailController(req, res) {
     try {
-        const userId = req.user.id
+        const userId = req.userId
         const { code } = req.body;
-        const user = await UserModel.findOne(userId)
-
-
-       
-
-        if (!code) {
-            return res.status(400).json({
-                message: "Email and verification code are required",
+        const user = await UserModel.findById(userId)
+           if (!user) {
+            return res.status(404).json({
+                message: "User not found",
                 error: true,
                 success: false
             });
         }
 
+        if(user.otp!== code){
+            return res.status(400).json({
+                message:"unvalid otp",
+                success:false,
+                error:true
+            })
+        }
+        user.status="Active"
+        user.verify_email=true,
+        user.otp=undefined
+
+        await user.save()
+
+
+       
 
         
-        await newUser.save();
+       
 
         return res.json({
             message: "Email verified successfully",
