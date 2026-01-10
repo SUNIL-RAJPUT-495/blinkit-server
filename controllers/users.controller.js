@@ -38,15 +38,26 @@ export async function registerUserController(req, res) {
 
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
+        const newUser = new  UserModel({name,email,hashedPassword,status:"Inactive"})
+        const saveNewUser = await newUser.save()
+
+        if(!saveNewUser){
+            return res.status(500).json({
+                message :"User not created",
+                error:true,
+                success:false
+            })
+        }
+
+
 
         const otp = generatedOtp();
-tempUsers.set(email, { name, hashedPassword, otp });
 
-await sendEmail({
-  sendTo: email,
-  subject: "Verify email from Blinkit",
-  html: verifyEmailTemplate({ name, code: otp })
-});
+        await sendEmail({
+            sendTo: email,
+            subject: "Verify email from Blinkit",
+            html: verifyEmailTemplate({ name, code: otp })
+        });
 
 
         return res.json({
@@ -69,50 +80,39 @@ await sendEmail({
 // veryifyEmail
 
 export async function verifyEmailController(req, res) {
-  try {
-    const { email, code } = req.body;
+    try {
+        const userId = req.user.id
+        const { code } = req.body;
+        const user = await UserModel.findOne(userId)
 
-    if (!email || !code) {
-      return res.status(400).json({
-        message: "Email and verification code are required",
-        error: true,
-        success: false
-      });
+
+       
+
+        if (!code) {
+            return res.status(400).json({
+                message: "Email and verification code are required",
+                error: true,
+                success: false
+            });
+        }
+
+
+        
+        await newUser.save();
+
+        return res.json({
+            message: "Email verified successfully",
+            error: false,
+            success: true
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            error: true,
+            success: false
+        });
     }
-
-    const tempUser = tempUsers.get(email);
-
-    if (!tempUser || tempUser.otp !== code) {
-      return res.status(400).json({
-        message: "Invalid or expired OTP",
-        error: true,
-        success: false
-      });
-    }
-
-    const newUser = new UserModel({
-      name: tempUser.name,
-      email,
-      password: tempUser.hashedPassword,
-      verify_email: true
-    });
-
-    await newUser.save();
-    tempUsers.delete(email); 
-
-    return res.json({
-      message: "Email verified successfully",
-      error: false,
-      success: true
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      message: error.message,
-      error: true,
-      success: false
-    });
-  }
 }
 
 
