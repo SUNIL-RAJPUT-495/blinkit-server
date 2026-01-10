@@ -50,6 +50,7 @@ const PORT = process.env.PORT || 8080;
 app.get("/", (req, res) => {
     res.json({ message: "Server is running on port " + PORT });
 });
+connectDB();
 
 // User Routes
 app.use('/api/user', userRouter);
@@ -67,11 +68,3 @@ app.use("/api/product", product);
 
 export default app;
 
-// app.use(...) routes ke baad aur export default se pehle
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`✅ Server is running on: http://localhost:${PORT}`);
-    });
-}).catch(err => {
-    console.log("❌ MongoDB connection error:", err);
-});

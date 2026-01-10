@@ -2,7 +2,6 @@ import mongoose, { Types } from "mongoose";
 
 const addressSchema = new mongoose.Schema({
     address_line: {
-        // FIXED: Changed 'Type' to lowercase 'type'
         type: String, 
         default: ""
     },
@@ -15,7 +14,6 @@ const addressSchema = new mongoose.Schema({
         default: ""
     },
     pincode: {
-        // FIXED: Corrected typo from 'Dtring' to 'String'
         type: String 
     },
     country: {
@@ -33,6 +31,5 @@ const addressSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// BEST PRACTICE: Used a capitalized model name 'Address'
 const AddressModel = mongoose.model("Address", addressSchema); 
 export default AddressModel;

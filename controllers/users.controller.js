@@ -98,8 +98,6 @@ export async function verifyEmailController(req, res) {
                 success: false
             });
         }
-        console.log(user.otp)
-        console.log(code)
         
 
         if(user.otp!== code){

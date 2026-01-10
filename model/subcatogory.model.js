@@ -3,12 +3,16 @@ import mongoose from "mongoose";
 
 const subcategoriesSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: {
+       type: String,
+        required: true
+       },
     
-    // Image URL string
-    image: { type: String, default: "" },
-
-    // Correct field name for population
+    image: { 
+      type: String, 
+      default: ""
+     },
+  
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
