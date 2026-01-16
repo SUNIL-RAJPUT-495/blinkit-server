@@ -68,7 +68,9 @@ app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 app.use("/api/cart",cart)
 
-
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
 
 export default app;
 
