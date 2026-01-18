@@ -1,8 +1,8 @@
 import express from "express"
-import { Cart } from "../../controllers/cart.controller.js";
+import { createOrder } from "../../controllers/cart.controller.js";
 
 const cart = express.Router();
 
-cart.post("/add-cart",Cart)
+cart.post("/add-cart",createOrder)
 
 export default cart ;
