@@ -16,8 +16,9 @@ import product from '../route/adminRouter/creat.product.router.js';
 import categoryRoutes from '../route/adminRouter/category.router.js';
 import Sub_Category from '../route/adminRouter/subCategory.js';
 import adminRouter from '../route/adminRouter/Admin.router.js';
-import cart from '../route/adminRouter/cart.router.js';
 import payment from '../route/adminRouter/payment.router.js';
+import order from '../route/adminRouter/order.router.js';
+
 
 
 const app = express();
@@ -67,10 +68,7 @@ app.use("/api/file", uploadRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
-app.use("/api/cart",cart)
-app.use("/api/payment",payment)
-
-
+app.use("/api/order",order)
 
 export default app;
 
