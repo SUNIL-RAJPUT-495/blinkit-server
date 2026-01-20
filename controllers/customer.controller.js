@@ -41,6 +41,19 @@ const verifycustomerOtp = async (req,res)=>{
         })
     }
 
+    const user = await customerUserModel.findOne({Number})
+
+    if(otp !== user.otp){
+        return res.status(400).json({
+            error:true,
+            success:false,
+            message:"Please enter a correct otp"
+
+        })
+    }
+
     
+
+
 
 }
