@@ -71,6 +71,9 @@ app.use("/api/product", product);
 app.use("/api/order",order)
 
 app.use("/api/address",address)
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
 export default app;
 

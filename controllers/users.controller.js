@@ -7,7 +7,6 @@ import generateAccesToken from '../utils/generateAccesToken.js';
 import uploadImageClodinary from '../utils/uploadImageCloudnery.js';
 import generatedOtp from '../utils/generatedOtp.js';
 import forgotPasswardTemplate from '../utils/forgotPasswardTemplates.js';
-import { response } from 'express';
 
 
 const tempUsers = new Map();
