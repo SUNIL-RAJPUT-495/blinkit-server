@@ -16,7 +16,6 @@ import product from '../route/adminRouter/creat.product.router.js';
 import categoryRoutes from '../route/adminRouter/category.router.js';
 import Sub_Category from '../route/adminRouter/subCategory.js';
 import adminRouter from '../route/adminRouter/Admin.router.js';
-import payment from '../route/adminRouter/payment.router.js';
 import order from '../route/adminRouter/order.router.js';
 
 

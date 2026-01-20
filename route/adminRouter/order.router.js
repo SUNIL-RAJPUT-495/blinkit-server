@@ -1,6 +1,6 @@
 import express from "express"
-import { createOrder } from "../../controllers/order.controller";
-import { verifyPayment } from "../../controllers/payament.controller";
+import { createOrder } from "../../controllers/order.controller.js";
+import { verifyPayment } from "../../controllers/order.controller.js";
 
 const order = express.Router();
 
