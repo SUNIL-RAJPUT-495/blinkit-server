@@ -17,6 +17,7 @@ import categoryRoutes from '../route/adminRouter/category.router.js';
 import Sub_Category from '../route/adminRouter/subCategory.js';
 import adminRouter from '../route/adminRouter/Admin.router.js';
 import order from '../route/adminRouter/order.router.js';
+import address from '../route/adminRouter/address.router.js';
 
 
 
@@ -68,6 +69,8 @@ app.use("/api/admin", adminRouter)
 app.use("/api/subcategory", Sub_Category);
 app.use("/api/product", product);
 app.use("/api/order",order)
+
+app.use("/api/address",address)
 
 export default app;
 

@@ -4,14 +4,13 @@ import { uploadSingleImage, uploadProductImages } from "../../controllers/upload
 
 const uploadRouter = Router();
 
-// single image
 uploadRouter.post(
   "/upload",
   upload.single("image"),
   uploadSingleImage
 );
 
-// multiple product images
+
 uploadRouter.post(
   "/upload-product",
   upload.array("productImages", 5),
