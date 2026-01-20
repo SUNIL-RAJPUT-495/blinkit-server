@@ -5,7 +5,7 @@ import AddressModel from "../model/address.model.js";
 export const saveAddress = (req, res) => {
   try {
     const { form } = req.body;
-     const { houseNo, landmark, receiverName, receiverNumber,pincode } = form;
+     const { houseNo, landmark, receiverName, receiverNumber,pincode ,floor ,area} = form;
 
     if (!houseNo || !landmark || !receiverName || !receiverNumber ||!pincode) {
       return res.status(400).json({
@@ -19,7 +19,7 @@ export const saveAddress = (req, res) => {
         message: "Invalid mobile number" 
     });
     }
-    const address_line = `${houseNo}, ${landmark}, ${pincode}`;
+    const address_line = `${houseNo},${floor},${area}, ${landmark}, ${pincode}`;
     const saveAddresss = AddressModel({
         address_line,
         name:receiverName,
