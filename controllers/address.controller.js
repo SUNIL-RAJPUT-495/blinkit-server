@@ -47,6 +47,20 @@ export const saveAddress = async (req, res) => {
 };
 
 
-export const Address = (req,res)=>{
+export const showAddress = async (req, res) => {
+  try {
+    const userId = req.userId; 
+    console.log("Fetching address for userId:", userId);
+
     
-}
+    const getAddress = await AddressModel.find({ userId: userId });
+
+    return res.status(200).json({
+      success: true,
+      message: "Address fetched successfully",
+      data: getAddress
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Error fetching address" });
+  }
+};

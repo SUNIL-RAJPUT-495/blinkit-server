@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    verify_otp: {
+        type: Number,
+        default: false
+    },
     last_login_date: {
         type: Date,
         default: null
