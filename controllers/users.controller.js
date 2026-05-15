@@ -15,6 +15,7 @@ const tempUsers = new Map();
 export async function registerUserController(req, res) {
 
     try {
+        console.log("Registration Body:", req.body);
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
@@ -28,6 +29,7 @@ export async function registerUserController(req, res) {
         const user = await UserModel.findOne({ email });
 
         if (user) {
+            console.log("Registration Failed: Email already registered", email);
             return res.status(400).json({
                 message: "Email already registered",
                 error: true,
@@ -37,7 +39,7 @@ export async function registerUserController(req, res) {
 
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
-        const newUser = new  UserModel({name,email,password:hashedPassword,status:"Inactive"})
+        const newUser = new  UserModel({name,email,password:hashedPassword,status:"Active",verify_email:true})
         const saveNewUser = await newUser.save()
 
         if(!saveNewUser){
@@ -50,6 +52,7 @@ export async function registerUserController(req, res) {
 
 
 
+        /*
         const otp = generatedOtp();
         newUser.otp = otp;
         await newUser.save()
@@ -60,10 +63,11 @@ export async function registerUserController(req, res) {
             subject: "Verify email from Blinkit",
             html: verifyEmailTemplate({ name, code: otp })
         });
+        */
 
 
         return res.json({
-            message: "Please verify your email.",
+            message: "Registration successful",
             error: false,
             success: true,
             data:{
@@ -131,6 +135,28 @@ export async function verifyEmailController(req, res) {
 
 
 
+// get user details 
+export async function getUserDetails(req, res) {
+    try {
+        const userId = req.userId;
+        const user = await UserModel.findById(userId);
+
+        return res.json({
+            message: "user details",
+            data: user,
+            error: false,
+            success: true
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Something went wrong",
+            error: true,
+            success: false
+        })
+    }
+}
+
+
 // login Controller
 
 export async function loginController(req, res) {
@@ -154,6 +180,8 @@ export async function loginController(req, res) {
                 success: false
             });
         }
+        // Status check removed as per request
+        /*
         if (user.status !== "Active") {
             return res.status(400).json({
                 message: " Contact to Admin",
@@ -161,6 +189,7 @@ export async function loginController(req, res) {
                 success: false
             })
         }
+        */
 
         const checkPassword = await bcryptjs.compare(password, user.password)
         if (!checkPassword) {
@@ -189,11 +218,17 @@ export async function loginController(req, res) {
             error: false,
             success: true,
             data: {
+                token: accesstoken,
                 accesstoken,
-                refreshToken
+                refreshToken,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                }
             }
-        }
-        )
+        })
 
     }
     catch (error) {
@@ -220,7 +255,7 @@ export async function logoutController(req, res) {
         }
 
 
-        res.clearCookie("accesstoken", cookiesOption)
+        res.clearCookie("accessToken", cookiesOption)
         res.clearCookie("refreshToken", cookiesOption)
 
         const removeRefreshToken = await UserModel.findByIdAndUpdate(userId, {

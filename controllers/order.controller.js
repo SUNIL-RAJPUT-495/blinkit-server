@@ -15,7 +15,7 @@ export const createOrder = async (req, res) => {
 
     const order = await Order.create({
       userId: req.userId,
-      cartItems: items,
+      cartItems: cartItems,
       totalItems,
       totalAmount: totalPrice,
       deliveryAddress,
@@ -42,7 +42,7 @@ export const verifyPayment = async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
 
     const generated_signature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", process.env.RAZARPAY_API_KEY_SECRET)
       .update(razorpay_order_id + "|" + razorpay_payment_id)
       .digest("hex");
 
@@ -75,3 +75,31 @@ export const verifyPayment = async (req, res) => {
     });
   }
 }
+
+// Get all orders (for Admin)
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      data: orders
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get My Orders (for Customer)
+export const getMyOrders = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      data: orders
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+

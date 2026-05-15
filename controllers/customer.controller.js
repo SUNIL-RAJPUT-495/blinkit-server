@@ -1,4 +1,5 @@
 import customerUserModel from "../model/customerUser.model.js"
+import jwt from 'jsonwebtoken'
 
 export const customerUser = async (req, res) => {
 
@@ -82,7 +83,10 @@ export const verifycustomerOtp = async (req, res) => {
         return res.status(200).json({
             message: "otp verified successfully",
             success: true,
-            data: user
+            data: {
+                ...user.toObject(),
+                accessToken: token
+            }
         })
     } catch (error) {
         return res.status(500).json({ message: error.message, error: true });
