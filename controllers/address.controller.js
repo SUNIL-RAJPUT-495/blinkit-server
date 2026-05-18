@@ -39,10 +39,10 @@ export const saveAddress = async (req, res) => {
       data: saveAddresss,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Save Address Error Details:", err.stack || err);
     return res.status(500).json({
       success: false,
-      message: "Server error",
+      message: err.message || "Server error",
     });
   }
 };
@@ -63,7 +63,8 @@ export const showAddress = async (req, res) => {
       data: getAddress
     });
   } catch (err) {
-    return res.status(500).json({ success: false, message: "Error fetching address" });
+    console.error("Show Address Error:", err.stack || err);
+    return res.status(500).json({ success: false, message: err.message || "Error fetching address" });
   }
 };
 
